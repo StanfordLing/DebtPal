@@ -15,8 +15,15 @@
       height: 100%;
     }
 
-    body.dark { background: #121212; color: #fff; }
-    #pinDisplay { letter-spacing: 0.5em; min-height: 48px; }
+    body.dark {
+      background: #121212;
+      color: #fff;
+    }
+
+    #pinDisplay {
+      letter-spacing: 0.5em;
+      min-height: 48px;
+    }
   </style>
 </head>
 
@@ -28,18 +35,29 @@
       <div id="pinDisplay" class="mb-3 fs-3"></div>
       <div id="pinError" class="form-text text-danger mb-2"></div>
       <div class="row gx-2 gy-2 mb-2">
-        <div class="col-4"><button class="btn btn-outline-secondary w-100 py-3 fw-bold" onclick="addDigit(1)">1</button></div>
-        <div class="col-4"><button class="btn btn-outline-secondary w-100 py-3 fw-bold" onclick="addDigit(2)">2</button></div>
-        <div class="col-4"><button class="btn btn-outline-secondary w-100 py-3 fw-bold" onclick="addDigit(3)">3</button></div>
-        <div class="col-4"><button class="btn btn-outline-secondary w-100 py-3 fw-bold" onclick="addDigit(4)">4</button></div>
-        <div class="col-4"><button class="btn btn-outline-secondary w-100 py-3 fw-bold" onclick="addDigit(5)">5</button></div>
-        <div class="col-4"><button class="btn btn-outline-secondary w-100 py-3 fw-bold" onclick="addDigit(6)">6</button></div>
-        <div class="col-4"><button class="btn btn-outline-secondary w-100 py-3 fw-bold" onclick="addDigit(7)">7</button></div>
-        <div class="col-4"><button class="btn btn-outline-secondary w-100 py-3 fw-bold" onclick="addDigit(8)">8</button></div>
-        <div class="col-4"><button class="btn btn-outline-secondary w-100 py-3 fw-bold" onclick="addDigit(9)">9</button></div>
+        <div class="col-4"><button class="btn btn-outline-secondary w-100 py-3 fw-bold" onclick="addDigit(1)">1</button>
+        </div>
+        <div class="col-4"><button class="btn btn-outline-secondary w-100 py-3 fw-bold" onclick="addDigit(2)">2</button>
+        </div>
+        <div class="col-4"><button class="btn btn-outline-secondary w-100 py-3 fw-bold" onclick="addDigit(3)">3</button>
+        </div>
+        <div class="col-4"><button class="btn btn-outline-secondary w-100 py-3 fw-bold" onclick="addDigit(4)">4</button>
+        </div>
+        <div class="col-4"><button class="btn btn-outline-secondary w-100 py-3 fw-bold" onclick="addDigit(5)">5</button>
+        </div>
+        <div class="col-4"><button class="btn btn-outline-secondary w-100 py-3 fw-bold" onclick="addDigit(6)">6</button>
+        </div>
+        <div class="col-4"><button class="btn btn-outline-secondary w-100 py-3 fw-bold" onclick="addDigit(7)">7</button>
+        </div>
+        <div class="col-4"><button class="btn btn-outline-secondary w-100 py-3 fw-bold" onclick="addDigit(8)">8</button>
+        </div>
+        <div class="col-4"><button class="btn btn-outline-secondary w-100 py-3 fw-bold" onclick="addDigit(9)">9</button>
+        </div>
         <div class="col-4"></div>
-        <div class="col-4"><button class="btn btn-outline-secondary w-100 py-3 fw-bold" onclick="addDigit(0)">0</button></div>
-        <div class="col-4"><button class="btn btn-outline-danger w-100 py-3 fw-bold" onclick="delDigit()">⌫</button></div>
+        <div class="col-4"><button class="btn btn-outline-secondary w-100 py-3 fw-bold" onclick="addDigit(0)">0</button>
+        </div>
+        <div class="col-4"><button class="btn btn-outline-danger w-100 py-3 fw-bold" onclick="delDigit()">⌫</button>
+        </div>
       </div>
       <button class="btn btn-primary w-100 mt-2" onclick="unlockPin()">Unlock</button>
       <div class="mt-3">
@@ -52,8 +70,8 @@
   <script>
     /* ---------- INIT ---------- */
     // If already logged in, redirect
-    if(getSessionPin()) {
-        window.location.replace('dashboard.html');
+    if (getSessionPin()) {
+      window.location.replace('dashboard.html');
     }
 
     let pinValue = "";
@@ -72,10 +90,10 @@
       // FRESH INSTALL
       if (!encrypted) {
         // Init default data
-        appData = { ledgers: { default: { name: 'Personal', people: {} } }, settings: { currency: '₹', theme: 'system', githubToken: '' } };
+        appData = { ledgers: { default: { name: 'Personal', people: {} } }, settings: { currency: '$', theme: 'system', githubToken: '' } };
         setSessionPin(pinValue);
         await saveData(); // Encrypts with new PIN and saves
-        window.location.href = 'dashboard.html';
+        window.location.replace('dashboard.html');
         return;
       }
 
