@@ -65,6 +65,7 @@
         <div class="col-4"><button class="btn btn-outline-danger w-100" onclick="delDigit()">⌫</button></div>
       </div>
       <button class="btn btn-primary w-100 mt-2" onclick="unlockPin()">Unlock</button>
+      <button class="btn btn-link text-danger mt-3" onclick="resetApp()">Forgot PIN? Reset App</button>
     </div>
   </div>
 
@@ -247,6 +248,13 @@
             alert("Incorrect current PIN. Cannot change.");
           }
         });
+      }
+
+      function resetApp() {
+        if (confirm("Are you sure you want to delete ALL data and start fresh? This cannot be undone.")) {
+          localStorage.removeItem('loanApp');
+          location.reload();
+        }
       }
 
       /* ---------- RENDER ---------- */
