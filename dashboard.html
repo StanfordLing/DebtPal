@@ -13,6 +13,7 @@
     body.dark .list-group-item { background: #1e1e1e; color: #fff; border-color: #333; }
     body.dark .form-select, body.dark .form-control { background: #1e1e1e; color: #fff; border-color: #333; }
     body.dark .modal-content { background: #1e1e1e; color: #fff; }
+    .amount-col { font-family: monospace; text-align: right; min-width: 100px; }
   </style>
 </head>
 <body class="bg-light">
@@ -119,16 +120,16 @@
             total += bal;
             
             const colorClass = bal > 0 ? 'text-danger' : bal < 0 ? 'text-primary' : 'text-muted';
-            const balText = bal === 0 ? 'Settled' : `${appData.settings.currency}${Math.abs(bal)}`;
+            const balText = bal === 0 ? 'Settled' : formatCurrency(Math.abs(bal));
             
             peopleList.innerHTML += `
                 <li class="list-group-item d-flex justify-content-between align-items-center" onclick="openPerson('${pid}')">
-                    ${p.name}
-                    <span class="${colorClass} fw-bold">${bal < 0 ? '+' : ''}${balText}</span>
+                    <span class="text-truncate flex-grow-1">${p.name}</span>
+                    <span class="${colorClass} fw-bold amount-col">${bal < 0 ? '+' : ''}${balText}</span>
                 </li>`;
         });
 
-        document.getElementById('totalBalance').textContent = `${appData.settings.currency}${total}`;
+        document.getElementById('totalBalance').textContent = formatCurrency(total);
     }
 
     function openPerson(pid) {

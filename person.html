@@ -15,6 +15,7 @@
     body.dark .list-group-item { background: #1e1e1e; color: #fff; border-color: #333; }
     body.dark .modal-content { background: #1e1e1e; color: #fff; }
     body.dark .form-control { background: #2d2d2d; color: #fff; border-color: #444; }
+    .amount-col { font-family: monospace; text-align: right; min-width: 100px; display: inline-block; }
   </style>
 </head>
 <body class="bg-light">
@@ -132,7 +133,7 @@
         
         const bal = personData.transactions.reduce((s, t) => s + (t.type === 'borrow' ? t.amount : -t.amount), 0);
         const elBal = document.getElementById('personBalance');
-        elBal.textContent = `${appData.settings.currency}${Math.abs(bal)}`;
+        elBal.textContent = formatCurrency(Math.abs(bal));
         elBal.className = bal > 0 ? 'text-danger' : bal < 0 ? 'text-primary' : 'text-muted';
         if(bal === 0) elBal.textContent = "Settled";
 
@@ -149,12 +150,12 @@
         sortedTx.forEach(t => {
             txList.innerHTML += `
                 <li class="list-group-item">
-                    <div>
-                        <span class="${t.type} fw-bold text-uppercase me-2">${t.type}</span>
-                        <span>${appData.settings.currency}${t.amount}</span>
-                        <div class="small text-muted">${t.date} ${t.due ? `(Due: ${t.due})` : ''}</div>
+                    <div class="flex-grow-1 d-flex align-items-center">
+                        <span class="${t.type} fw-bold text-uppercase me-2" style="width: 70px;">${t.type}</span>
+                        <div class="small text-muted me-auto">${t.date} ${t.due ? `(Due: ${t.due})` : ''}</div>
+                        <span class="amount-col fw-bold">${formatCurrency(t.amount)}</span>
                     </div>
-                    <button class="btn btn-sm btn-outline-danger border-0" onclick="deleteTx('${t.id}')">🗑️</button>
+                    <button class="btn btn-sm btn-outline-danger border-0 ms-2" onclick="deleteTx('${t.id}')">🗑️</button>
                 </li>
             `;
         });
@@ -163,7 +164,12 @@
     /* ---------- TRANSACTIONS ---------- */
     const txModal = new bootstrap.Modal(document.getElementById('txModal'));
 
-    function showTxForm() {
+    function showTxForm(type) {
+        // Set default based on button clicked
+        if(type === 'borrow') document.getElementById('txBorrow').checked = true;
+        else if(type === 'repay') document.getElementById('txRepay').checked = true;
+        else document.getElementById('txBorrow').checked = true; // Fallback
+
         document.getElementById('txAmount').value = '';
         document.getElementById('txDate').value = new Date().toISOString().slice(0,10);
         document.getElementById('txDue').value = '';
