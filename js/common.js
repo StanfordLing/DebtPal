@@ -163,7 +163,11 @@ async function syncToGist(token, encryptedData) {
 function applyTheme() {
 	if (!appData) return;
 	const themeVal = appData.settings.theme;
-	document.body.className = themeVal === 'dark' ? 'dark' : themeVal === 'light' ? '' : (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : '');
+	if (themeVal === 'system') {
+		document.body.removeAttribute('data-bs-theme');
+	} else {
+		document.body.setAttribute('data-bs-theme', themeVal);
+	}
 }
 
 function disableZoom() {
