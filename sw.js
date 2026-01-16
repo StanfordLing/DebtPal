@@ -1,8 +1,13 @@
-const cacheName = 'loantracker-cache-v4';
+const cacheName = 'loantracker-cache-v5';
 const filesToCache = [
+  './',
   './index.html',
+  './dashboard.html',
+  './person.html',
+  './settings.html',
   './reset.html',
   './manifest.json',
+  './js/common.js',
   'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css'
 ];
 

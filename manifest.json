@@ -8,5 +8,21 @@
   "icons": [
     { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
     { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ],
+  "shortcuts": [
+    {
+      "name": "Borrow",
+      "short_name": "Borrow",
+      "description": "Add a new loan",
+      "url": "/dashboard.html?action=borrow",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Repay",
+      "short_name": "Repay",
+      "description": "Repay a loan",
+      "url": "/dashboard.html?action=repay",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+    }
   ]
 }
