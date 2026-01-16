@@ -60,7 +60,7 @@ async function loadData() {
 	const encrypted = localStorage.getItem(STORAGE_KEY);
 	if (!encrypted) {
 		// Initialize new data if none exists
-		appData = { ledgers: { default: { name: 'Personal', people: {} } }, settings: { currency: '₹', theme: 'system', githubToken: '' } };
+		appData = { ledgers: { default: { name: 'Personal', people: {} } }, settings: { currency: '$', theme: 'system', githubToken: '' } };
 		await saveData();
 		return appData;
 	}
