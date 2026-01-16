@@ -29,7 +29,15 @@ body.dark { background:#121212; color:#fff; }
     <div id="pinDisplay" class="mb-3 fs-3"></div>
     <div id="pinError" class="form-text text-danger mb-2"></div>
     <div class="row gx-2 gy-2 mb-2">
-      ${[1,2,3,4,5,6,7,8,9].map(n=>`<div class="col-4"><button class="btn btn-outline-secondary w-100" onclick="addDigit(${n})">${n}</button></div>`).join('')}
+      <div class="col-4"><button class="btn btn-outline-secondary w-100" onclick="addDigit(1)">1</button></div>
+      <div class="col-4"><button class="btn btn-outline-secondary w-100" onclick="addDigit(2)">2</button></div>
+      <div class="col-4"><button class="btn btn-outline-secondary w-100" onclick="addDigit(3)">3</button></div>
+      <div class="col-4"><button class="btn btn-outline-secondary w-100" onclick="addDigit(4)">4</button></div>
+      <div class="col-4"><button class="btn btn-outline-secondary w-100" onclick="addDigit(5)">5</button></div>
+      <div class="col-4"><button class="btn btn-outline-secondary w-100" onclick="addDigit(6)">6</button></div>
+      <div class="col-4"><button class="btn btn-outline-secondary w-100" onclick="addDigit(7)">7</button></div>
+      <div class="col-4"><button class="btn btn-outline-secondary w-100" onclick="addDigit(8)">8</button></div>
+      <div class="col-4"><button class="btn btn-outline-secondary w-100" onclick="addDigit(9)">9</button></div>
       <div class="col-4"></div>
       <div class="col-4"><button class="btn btn-outline-secondary w-100" onclick="addDigit(0)">0</button></div>
       <div class="col-4"><button class="btn btn-outline-danger w-100" onclick="delDigit()">⌫</button></div>
@@ -126,6 +134,7 @@ body.dark { background:#121212; color:#fff; }
   <label>GitHub Token (for cloud sync)</label>
   <input type="password" id="githubToken" class="form-control mb-2" placeholder="Personal Access Token">
   <button class="btn btn-secondary mb-2" onclick="saveSettings()">Save Settings</button>
+  <button class="btn btn-warning mb-2" onclick="showChangePin()">Change PIN</button>
   <hr>
   <button class="btn btn-outline-primary" onclick="backup()">Backup</button>
   <input type="file" onchange="restore(event)" class="form-control mt-2">
@@ -198,6 +207,23 @@ function showModal(title, placeholder, defaultValue, callback){
 }
 document.getElementById('modalSaveBtn').onclick=function(){if(modalCallback) modalCallback(document.getElementById('modalInput').value); inputModal.hide();}
 
+/* ---------- CHANGE PIN ---------- */
+function showChangePin(){
+  showModal("Change PIN","Enter new 6-digit PIN","",async newPin=>{
+    if(!newPin || newPin.length < 6){alert("PIN must be at least 6 digits."); return;}
+    const currentPin = prompt("Enter current PIN to confirm:");
+    if(!currentPin) return;
+    try{
+      await decryptData(JSON.parse(localStorage.getItem('loanApp')), currentPin);
+      pinValue = newPin;
+      persist();
+      alert("PIN changed successfully!");
+    }catch(e){
+      alert("Incorrect current PIN. Cannot change.");
+    }
+  });
+}
+
 /* ---------- RENDER ---------- */
 function render(){
   const themeVal = appData.settings.theme;
@@ -246,28 +272,26 @@ function restore(e){const r=new FileReader(); r.onload=()=>{appData=JSON.parse(r
 async function persist(){const encrypted=await encryptData(appData,pinValue); localStorage.setItem('loanApp',JSON.stringify(encrypted)); render(); if(githubToken) syncToGist(); checkReminders();}
 
 /* ---------- CLOUD SYNC ---------- */
-async function syncToGist(){if(!gistId){const res=await fetch('https://api.github.com/gists',{method:'POST',headers:{Authorization:`token ${githubToken}`, 'Content-Type':'application/json'},body:JSON.stringify({public:false,description:"LoanTracker Backup",files:{"loan-backup.json":{content:JSON.stringify(await encryptData(appData,pinValue))}}})}); const gist=await res.json(); gistId=gist.id;}else{await fetch(`https://api.github.com/gists/${gistId}`,{method:'PATCH',headers:{Authorization:`token ${githubToken}`, 'Content-Type':'application/json'},body:JSON.stringify({files:{"loan-backup.json":{content:JSON.stringify(await encryptData(appData,pinValue))}}})});}}
-async function syncFromGist(){if(!githubToken) return; if(!gistId){const res=await fetch('https://api.github.com/gists',{headers:{Authorization:`token ${githubToken}`}}); const gists=await res.json(); const found=gists.find(g=>g.description==="LoanTracker Backup"); if(found){gistId=found.id;}else return;} const res=await fetch(`https://api.github.com/gists/${gistId}`,{headers:{Authorization:`token ${githubToken}`}}); const gist=await res.json(); const content=gist.files["loan-backup.json"].content; appData=await decryptData(JSON.parse(content),pinValue); persist();}
+async function syncToGist(){if(!gistId){const res=await fetch('https://api.github.com/gists',{method:'POST',headers:{Authorization:`token ${githubToken}`, 'Content-Type':'application/json'},body:JSON.stringify({public:false,description:"LoanTracker Backup",files:{"loan-backup.json":{content:JSON.stringify(await encryptData(appData,pinValue))}}})}); const gist=await res.json(); gistId=gist.id;}else{await fetch(`https://api.github.com/gists/${gistId}`,{method:'PATCH',headers:{Authorization:`token ${githubToken}`, 'Content-Type':'application/json'},body:JSON.stringify({files:{"loan-backup.json":{content:JSON.stringify(await encryptData(appData,pinValue))}}})})}}
+async function syncFromGist(){if(!gistId) return; const res=await fetch(`https://api.github.com/gists/${gistId}`,{headers:{Authorization:`token ${githubToken}`}}); const gist=await res.json(); const file=gist.files['loan-backup.json'].content; appData=await decryptData(JSON.parse(file),pinValue); persist();}
 
-/* ---------- SMART OVERDUE NOTIFICATIONS ---------- */
-function checkReminders() {
-  if(Notification.permission !== 'granted') return;
-  const today = new Date().toISOString().slice(0,10);
-  const ledger = appData.ledgers[currentLedger];
-  for (let person of Object.values(ledger.people)) {
-    person.transactions.forEach(t => {
-      if(t.due && t.due < today && t.type==='borrow' && !t.notified){
-        new Notification('Overdue Loan', {body:`${person.name} is overdue for ${appData.settings.currency}${t.amount}`});
-        t.notified = true;
+/* ---------- OVERDUE NOTIFICATIONS ---------- */
+function checkReminders(){
+  if(Notification.permission!=='granted') return;
+  const today=new Date().toISOString().slice(0,10);
+  const ledger=appData.ledgers[currentLedger];
+  for(let person of Object.values(ledger.people)){
+    person.transactions.forEach(t=>{
+      if(t.due && t.due<today && t.type==='borrow' && !t.notified){
+        new Notification('Overdue Loan',{body:`${person.name} is overdue for ${appData.settings.currency}${t.amount}`});
+        t.notified=true;
       }
     });
   }
   persist();
 }
-Notification.requestPermission();
+if(Notification.permission!=='granted') Notification.requestPermission();
 
-/* ---------- SERVICE WORKER ---------- */
-if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').then(()=>console.log('SW registered'));}
 </script>
 </body>
 </html>
